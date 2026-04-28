@@ -1,9 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DateTime } from 'luxon';
 import { useZmanim } from './hooks/useZmanim';
 import { useGeolocation } from './hooks/useGeolocation';
 import { ZmanimClock } from './components/ZmanimClock';
 import { ZmanimTable } from './components/ZmanimTable';
+import { CitySearch } from './components/CitySearch';
+import { getTimezone } from './utils/getTimezone';
+import type { CitySuggestion } from './hooks/useCitySearch';
+
+const JERUSALEM = { lat: 31.7683, lng: 35.2137, timeZoneId: 'Asia/Jerusalem', label: 'Jerusalem' };
+
+interface Location {
+  lat: number;
+  lng: number;
+  timeZoneId: string;
+  label: string;
+}
+
+type GpsStatus = 'idle' | 'pending' | 'denied';
 
 function useNow() {
   const [now, setNow] = useState(() => DateTime.now());
@@ -14,23 +28,44 @@ function useNow() {
   return now;
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  pending: 'Locating…',
-  granted: '',
-  denied: 'Using Jerusalem (location denied)',
-  unavailable: 'Using Jerusalem (geolocation unavailable)',
-};
-
 export default function App() {
   const now = useNow();
-  const geo = useGeolocation();
-  const zmanim = useZmanim(geo.lat, geo.lng, geo.timeZoneId);
+  const [location, setLocation] = useState<Location>(JERUSALEM);
+  const [gpsStatus, setGpsStatus] = useState<GpsStatus>('idle');
 
+  const handleGpsLocation = useCallback(({ lat, lng, timeZoneId }: { lat: number; lng: number; timeZoneId: string }) => {
+    setLocation({ lat, lng, timeZoneId, label: `${lat.toFixed(3)}°, ${lng.toFixed(3)}°` });
+    setGpsStatus('idle');
+  }, []);
+
+  const handleGpsError = useCallback(() => {
+    setGpsStatus('denied');
+  }, []);
+
+  const requestGps = useGeolocation(handleGpsLocation, handleGpsError);
+
+  const triggerGps = useCallback(() => {
+    setGpsStatus('pending');
+    requestGps();
+  }, [requestGps]);
+
+  // Auto-request GPS on mount
+  useEffect(() => {
+    triggerGps();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleCitySelect = useCallback(async (s: CitySuggestion) => {
+    // Use first part of display_name as a readable label
+    const label = s.displayName.split(',')[0].trim();
+    // Optimistically update coords; fetch timezone in parallel
+    setLocation((prev) => ({ ...prev, lat: s.lat, lng: s.lng, label }));
+    const timeZoneId = await getTimezone(s.lat, s.lng);
+    setLocation({ lat: s.lat, lng: s.lng, timeZoneId, label });
+  }, []);
+
+  const zmanim = useZmanim(location.lat, location.lng, location.timeZoneId);
   const hebrewDate = now.setLocale('he').toLocaleString(DateTime.DATE_FULL);
-  const locationLabel =
-    geo.status === 'granted'
-      ? `${geo.lat.toFixed(3)}°, ${geo.lng.toFixed(3)}°`
-      : 'Jerusalem';
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-8 px-4 py-10">
@@ -40,12 +75,16 @@ export default function App() {
         </h1>
         <p className="text-slate-400 text-sm mt-1">{hebrewDate}</p>
         <p className="text-slate-500 text-xs mt-0.5">
-          {now.toFormat('h:mm:ss a')} · {geo.timeZoneId}
+          {now.toFormat('h:mm:ss a')} · {location.timeZoneId}
         </p>
-        {STATUS_LABEL[geo.status] && (
-          <p className="text-slate-600 text-xs mt-1 italic">{STATUS_LABEL[geo.status]}</p>
-        )}
       </header>
+
+      <CitySearch
+        currentLabel={location.label}
+        gpsStatus={gpsStatus}
+        onSelect={handleCitySelect}
+        onGps={triggerGps}
+      />
 
       <div className="flex flex-col md:flex-row items-center gap-10">
         <div className="relative">
@@ -70,7 +109,7 @@ export default function App() {
       </div>
 
       <footer className="text-slate-600 text-xs mt-8">
-        GRA method · {locationLabel} · kosher-zmanim
+        GRA method · {location.label} · kosher-zmanim
       </footer>
     </div>
   );

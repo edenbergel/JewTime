@@ -1,49 +1,38 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useRef } from 'react';
+import { getTimezone } from '../utils/getTimezone';
 
-const JERUSALEM = { lat: 31.7683, lng: 35.2137 };
-
-type Status = 'pending' | 'granted' | 'denied' | 'unavailable';
-
-export interface GeolocationState {
+export interface GPSLocation {
   lat: number;
   lng: number;
   timeZoneId: string;
-  status: Status;
 }
 
-export function useGeolocation(): GeolocationState {
-  const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+type OnLocation = (loc: GPSLocation) => void;
+type OnError = () => void;
 
-  const [state, setState] = useState<GeolocationState>({
-    lat: JERUSALEM.lat,
-    lng: JERUSALEM.lng,
-    timeZoneId: browserTz,
-    status: 'pending',
-  });
+export function useGeolocation(onLocation: OnLocation, onError?: OnError) {
+  const onLocationRef = useRef(onLocation);
+  onLocationRef.current = onLocation;
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
 
-  useEffect(() => {
+  const request = useCallback(() => {
     if (!navigator.geolocation) {
-      setState((s) => ({ ...s, status: 'unavailable' }));
+      onErrorRef.current?.();
       return;
     }
-
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setState({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          timeZoneId: browserTz,
-          status: 'granted',
-        });
+      async (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        const timeZoneId = await getTimezone(lat, lng);
+        onLocationRef.current({ lat, lng, timeZoneId });
       },
       () => {
-        setState((s) => ({ ...s, status: 'denied' }));
+        onErrorRef.current?.();
       },
       { timeout: 10_000 },
     );
-  // browserTz is stable — derived once from Intl, never changes during a session
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return state;
+  return request;
 }
