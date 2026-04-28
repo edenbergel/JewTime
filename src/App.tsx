@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { useZmanim } from './hooks/useZmanim';
 import { useGeolocation } from './hooks/useGeolocation';
 import { ZmanimClock } from './components/ZmanimClock';
-import { ZmanimTable } from './components/ZmanimTable';
+import { ZmanimList } from './components/ZmanimList';
 import { CitySearch } from './components/CitySearch';
 import { getTimezone } from './utils/getTimezone';
 import type { CitySuggestion } from './hooks/useCitySearch';
@@ -86,7 +86,7 @@ export default function App() {
         onGps={triggerGps}
       />
 
-      <div className="flex flex-col md:flex-row items-center gap-10">
+      <div className="flex flex-col items-center gap-10">
         <div className="relative">
           <ZmanimClock zmanim={zmanim} now={now} />
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-8 flex gap-4 text-xs text-slate-400">
@@ -105,7 +105,7 @@ export default function App() {
           </div>
         </div>
 
-        <ZmanimTable zmanim={zmanim} now={now} />
+        <ZmanimList zmanim={zmanim} now={now} />
       </div>
 
       <footer className="text-slate-600 text-xs mt-8">
