@@ -49,16 +49,13 @@ export default function App() {
     requestGps();
   }, [requestGps]);
 
-  // Auto-request GPS on mount
   useEffect(() => {
     triggerGps();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCitySelect = useCallback(async (s: CitySuggestion) => {
-    // Use first part of display_name as a readable label
     const label = s.displayName.split(',')[0].trim();
-    // Optimistically update coords; fetch timezone in parallel
     setLocation((prev) => ({ ...prev, lat: s.lat, lng: s.lng, label }));
     const timeZoneId = await getTimezone(s.lat, s.lng);
     setLocation({ lat: s.lat, lng: s.lng, timeZoneId, label });
@@ -68,17 +65,26 @@ export default function App() {
   const hebrewDate = now.setLocale('he').toLocaleString(DateTime.DATE_FULL);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-8 px-4 py-10">
-      <header className="text-center">
-        <h1 className="text-4xl font-light tracking-widest text-amber-400" dir="rtl">
+    <div className="w-full flex flex-col items-center gap-10 px-4 py-12">
+
+      {/* Header */}
+      <header className="text-center space-y-1">
+        <h1
+          dir="rtl"
+          className="text-5xl font-light tracking-widest"
+          style={{ color: '#D4930F' }}
+        >
           זמנים
         </h1>
-        <p className="text-slate-400 text-sm mt-1">{hebrewDate}</p>
-        <p className="text-slate-500 text-xs mt-0.5">
+        <p className="text-sm tracking-wide" style={{ color: '#475569' }}>
+          {hebrewDate}
+        </p>
+        <p className="text-xs tabular-nums" style={{ color: '#334155' }}>
           {now.toFormat('h:mm:ss a')} · {location.timeZoneId}
         </p>
       </header>
 
+      {/* City search */}
       <CitySearch
         currentLabel={location.label}
         gpsStatus={gpsStatus}
@@ -86,29 +92,31 @@ export default function App() {
         onGps={triggerGps}
       />
 
-      <div className="flex flex-col items-center gap-10">
-        <div className="relative">
-          <ZmanimClock zmanim={zmanim} now={now} />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-8 flex gap-4 text-xs text-slate-400">
-            <span className="flex items-center gap-1">
-              <span className="inline-block w-3 h-1 rounded" style={{ background: '#d97706' }} />
-              Day
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="inline-block w-3 h-1 rounded" style={{ background: '#4338ca' }} />
-              Twilight
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="inline-block w-3 h-1 rounded" style={{ background: '#1e3a5f' }} />
-              Night
-            </span>
-          </div>
-        </div>
-
-        <ZmanimList zmanim={zmanim} now={now} />
+      {/* Clock */}
+      <div className="w-full max-w-105 mx-auto">
+        <ZmanimClock zmanim={zmanim} now={now} />
       </div>
 
-      <footer className="text-slate-600 text-xs mt-8">
+      {/* Legend */}
+      <div className="flex gap-5 text-xs" style={{ color: '#334155' }}>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-0.75 rounded-full" style={{ background: '#D4930F' }} />
+          Day
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-0.75 rounded-full" style={{ background: '#3730a3' }} />
+          Twilight
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-0.75 rounded-full" style={{ background: '#1a2d4a' }} />
+          Night
+        </span>
+      </div>
+
+      {/* Zmanim cards */}
+      <ZmanimList zmanim={zmanim} now={now} />
+
+      <footer className="text-xs pb-4" style={{ color: '#1e3048' }}>
         GRA method · {location.label} · kosher-zmanim
       </footer>
     </div>

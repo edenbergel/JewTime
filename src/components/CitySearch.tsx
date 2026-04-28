@@ -18,18 +18,14 @@ export function CitySearch({ currentLabel, gpsStatus, onSelect, onGps }: CitySea
 
   const { suggestions, loading } = useCitySearch(query);
 
-  // Open dropdown when suggestions arrive
   useEffect(() => {
     setOpen(suggestions.length > 0);
     setActiveIndex(-1);
   }, [suggestions]);
 
-  // Close on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (!containerRef.current?.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -59,14 +55,14 @@ export function CitySearch({ currentLabel, gpsStatus, onSelect, onGps }: CitySea
   }
 
   const gpsBtnLabel =
-    gpsStatus === 'pending' ? 'Locating…' : gpsStatus === 'denied' ? 'GPS denied' : 'Use my location';
+    gpsStatus === 'pending' ? 'Locating…' : gpsStatus === 'denied' ? 'GPS denied' : 'Use GPS';
 
   return (
     <div ref={containerRef} className="relative w-full max-w-sm">
       <div className="flex gap-2">
         {/* Search input */}
         <div className="relative flex-1">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#475569' }}>
             {loading ? (
               <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -91,7 +87,13 @@ export function CitySearch({ currentLabel, gpsStatus, onSelect, onGps }: CitySea
             onKeyDown={handleKeyDown}
             onFocus={() => suggestions.length > 0 && setOpen(true)}
             placeholder={currentLabel}
-            className="w-full pl-9 pr-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+            style={{
+              backgroundColor: '#131f35',
+              borderColor: '#1e3048',
+              color: '#e8e0d0',
+              outline: 'none',
+            }}
+            className="w-full pl-9 pr-3 py-2.5 rounded-lg border text-sm placeholder:text-slate-600 transition-colors focus:border-gold focus:[box-shadow:0_0_0_1px_rgba(212,147,15,0.3)]"
           />
         </div>
 
@@ -101,7 +103,8 @@ export function CitySearch({ currentLabel, gpsStatus, onSelect, onGps }: CitySea
           onClick={onGps}
           disabled={gpsStatus === 'pending'}
           title={gpsBtnLabel}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-sm hover:border-amber-500 hover:text-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          style={{ backgroundColor: '#131f35', borderColor: '#1e3048', color: '#94a3b8' }}
+          className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg border text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:border-gold hover:text-gold"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="3" />
@@ -111,12 +114,13 @@ export function CitySearch({ currentLabel, gpsStatus, onSelect, onGps }: CitySea
         </button>
       </div>
 
-      {/* Suggestions dropdown */}
+      {/* Dropdown */}
       {open && (
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-10 mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 shadow-xl overflow-hidden"
+          style={{ backgroundColor: '#131f35', borderColor: '#1e3048' }}
+          className="absolute z-10 mt-1 w-full rounded-xl border shadow-2xl overflow-hidden"
         >
           {suggestions.map((s, i) => (
             <li
@@ -124,16 +128,13 @@ export function CitySearch({ currentLabel, gpsStatus, onSelect, onGps }: CitySea
               id={`${listboxId}-${i}`}
               role="option"
               aria-selected={i === activeIndex}
-              onMouseDown={(e) => {
-                e.preventDefault(); // keep input focused until commit
-                commit(s);
-              }}
+              onMouseDown={(e) => { e.preventDefault(); commit(s); }}
               onMouseEnter={() => setActiveIndex(i)}
-              className={`px-4 py-2.5 text-sm cursor-pointer truncate transition-colors ${
-                i === activeIndex
-                  ? 'bg-amber-600 text-white'
-                  : 'text-slate-300 hover:bg-slate-700'
-              }`}
+              style={i === activeIndex
+                ? { backgroundColor: '#D4930F', color: '#0f172a' }
+                : { color: '#94a3b8' }
+              }
+              className="px-4 py-2.5 text-sm cursor-pointer truncate transition-colors hover:bg-navy-border"
             >
               {s.displayName}
             </li>
