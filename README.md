@@ -1,5 +1,7 @@
 # JewTime — זמנים
 
+**Live app: [jew-time.vercel.app](https://jew-time.vercel.app/)**
+
 A Progressive Web App for halachic times (zmanim). Shows a live 24-hour circular clock with daytime, twilight, and night arcs, plus a card grid of all major zmanim for the day.
 
 ## Features
