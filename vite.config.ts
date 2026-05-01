@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon-180x180.png'],
       manifest: {
-        name: 'JewTime — Jewish Times',
-        short_name: 'JewTime',
+        name: 'Zmanim — זמנים',
+        short_name: 'Zmanim',
         description: 'Halachic zmanim for prayers and Jewish observance',
         theme_color: '#D4930F',
         background_color: '#0f172a',

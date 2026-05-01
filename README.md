@@ -1,4 +1,4 @@
-# JewTime — זמנים
+# Zmanim — זמנים
 
 **Live app: [jew-time.vercel.app](https://jew-time.vercel.app/)**
 
