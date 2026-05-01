@@ -1,6 +1,6 @@
 # Zmanim — זמנים
 
-**Live app: [jew-time.vercel.app](https://jew-time.vercel.app/)**
+**Live app: [zmanim-pwa.vercel.app](https://zmanim-pwa.vercel.app/)**
 
 A Progressive Web App for halachic times (zmanim). Shows a live 24-hour circular clock with daytime, twilight, and night arcs, plus a card grid of all major zmanim for the day.
 
@@ -17,16 +17,16 @@ A Progressive Web App for halachic times (zmanim). Shows a live 24-hour circular
 
 ## Stack
 
-| Layer | Choice |
-|---|---|
-| Framework | React 19 + TypeScript |
-| Build | Vite 8 |
-| Styling | Tailwind CSS v4 |
-| Zmanim | [kosher-zmanim](https://github.com/KosherJava/KosherZmanim) (GRA method) |
-| Geocoding | [Nominatim](https://nominatim.openstreetmap.org/) (OpenStreetMap) |
-| Timezone | [timeapi.io](https://timeapi.io/) |
-| PWA | vite-plugin-pwa + Workbox |
-| Fonts | Inter + Frank Ruhl Libre (Google Fonts) |
+| Layer     | Choice                                                                   |
+| --------- | ------------------------------------------------------------------------ |
+| Framework | React 19 + TypeScript                                                    |
+| Build     | Vite 8                                                                   |
+| Styling   | Tailwind CSS v4                                                          |
+| Zmanim    | [kosher-zmanim](https://github.com/KosherJava/KosherZmanim) (GRA method) |
+| Geocoding | [Nominatim](https://nominatim.openstreetmap.org/) (OpenStreetMap)        |
+| Timezone  | [timeapi.io](https://timeapi.io/)                                        |
+| PWA       | vite-plugin-pwa + Workbox                                                |
+| Fonts     | Inter + Frank Ruhl Libre (Google Fonts)                                  |
 
 ## Getting started
 
@@ -58,6 +58,7 @@ This writes `pwa-64x64.png`, `pwa-192x192.png`, `pwa-512x512.png`, `maskable-ico
 ## Deployment
 
 Deployed on Vercel. A `vercel.json` is included with:
+
 - SPA rewrite (`/*` → `index.html`)
 - `sw.js` and `manifest.webmanifest` served with `no-cache` so PWA updates ship immediately
 - Hashed static assets served with `immutable` for maximum CDN cache efficiency
@@ -67,6 +68,7 @@ Every push to `main` triggers an automatic deploy.
 ## Halachic notes
 
 All times follow the **GRA (Vilna Gaon)** method:
+
 - Shaot zmaniyot = sunrise to sunset divided by 12
 - Sof Zman Shema = 3 shaot zmaniyot after sunrise
 - Chatzot Layla = solar midnight (solar noon + 12 hours)
